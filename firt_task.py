@@ -1,83 +1,85 @@
-import re
-from collections import UserDict
+import json
 
-class Field:
-    def __init__(self, value):
-        self.value = value
+class ContactManager:
+    def __init__(self):
+        self.contacts = {}
+        self.load_contacts_from_file()
 
-class Name(Field):
-    def __init__(self, value):
-        super().__init__(value)
+    def add_contact(self, name, phone):
+        self.contacts[name] = phone
+        self.save_contacts_to_file()
+        return 'Contact added.'
 
-class Phone(Field):
-    def __init__(self, value):
-        super().__init__(value)
-        self.validate()
-
-    def validate(self):
-        if not re.match(r'^\d{10}$', self.value):
-            raise ValueError("Invalid phone number format")
-
-class Record:
-    def __init__(self, name):
-        self.name = Name(name)
-        self.phones = []
-
-    def add_phone(self, phone):
-        self.phones.append(Phone(phone))
-
-    def remove_phone(self, phone):
-        self.phones = [p for p in self.phones if p.value != phone]
-
-    def edit_phone(self, old_phone, new_phone):
-        if old_phone not in [p.value for p in self.phones]:
-            raise ValueError("Phone number {} not found in the record.".format(old_phone))
+    def change_contact(self, name, new_phone):
+        if name in self.contacts:
+            self.contacts[name] = new_phone
+            self.save_contacts_to_file()
+            return 'Contact updated.'
         else:
-            for p in self.phones:
-                if p.value == old_phone:
-                    p.value = new_phone
-                    p.validate()
-                    break
+            return f'Contact with name "{name}" not found.'
 
-    def find_phone(self, phone):
-        for p in self.phones:
-            if p.value == phone:
-                return p
-        return None
+    def show_phone(self, name):
+        if name in self.contacts:
+            return self.contacts[name]
+        else:
+            return f'Contact with name "{name}" not found.'
 
-class AddressBook(UserDict):
-    def add_record(self, record):
-        self.data[record.name.value] = record
+    def show_all_contacts(self):
+        if self.contacts:
+            all_contacts = 'All contacts:\n'
+            for name, phone in self.contacts.items():
+                all_contacts += f'{name}: {phone}\n'
+            return all_contacts
+        else:
+            return 'No contacts saved.'
 
-    def find(self, name):
-        for record in self.data.values():
-            if record.name.value == name:
-                return record
-        return None
+    def save_contacts_to_file(self):
+        with open('contacts.json', 'w') as f:
+            json.dump(self.contacts, f)
 
-    def delete(self, name):
-        del self.data[name]
+    def load_contacts_from_file(self):
+        try:
+            with open('contacts.json', 'r') as f:
+                self.contacts = json.load(f)
+        except FileNotFoundError:
+            pass
 
+class AssistantBot:
+    def __init__(self):
+        self.contact_manager = ContactManager()
 
-# Приклад використання
+    def greet(self):
+        print("Welcome to the assistant bot!")
+
+    def parse_input(self, user_input):
+        cmd, *args = user_input.split()
+        cmd = cmd.strip().lower()
+        return cmd, args
+
+    def run(self):
+        self.greet()
+        print("Available commands:\nhello - greet\nadd [name] [phone] - add a contact\nchange [name] [new phone] - update a contact\nphone [name] - show phone number\nall - show all contacts\nclose or exit - close the bot")
+
+        while True:
+            user_input = input("Enter a command: ")
+            command, args = self.parse_input(user_input)
+
+            if command in ["close", "exit"]:
+                print("Good bye!")
+                break
+            elif command == 'add':
+                print(self.contact_manager.add_contact(*args))
+            elif command == 'change':
+                print(self.contact_manager.change_contact(*args))
+            elif command == 'phone':
+                print(self.contact_manager.show_phone(*args))
+            elif command == 'all':
+                print(self.contact_manager.show_all_contacts())
+            elif command == "hello":
+                print("How can I help you?")
+            else:
+                print("Invalid command.")
+
 if __name__ == "__main__":
-    address_book = AddressBook()
-
-    # Додавання записів
-    record1 = Record(Name("John Doe"))
-    record1.add_phone("1234567890")
-    address_book.add_record(record1)
-
-    record2 = Record(Name("Jane Smith"))
-    record2.add_phone("9876543210")
-    record2.add_phone("5554443333")
-    address_book.add_record(record2)
-
-    # Пошук записів за іменем
-    search_result = address_book.find("John Doe")
-    for record in search_result:
-        print("Name:", record.name.value)
-        print("Phones:", [phone.value for phone in record.phones])
-
-    # Видалення записів за іменем
-    address_book.delete("Jane Smith")
+    bot = AssistantBot()
+    bot.run()
