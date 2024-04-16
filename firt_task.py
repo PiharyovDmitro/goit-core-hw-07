@@ -1,6 +1,6 @@
 import json
-from datetime import datetime, timedelta
 import re
+from datetime import datetime, timedelta
 from collections import UserDict
 
 class Field:
@@ -67,6 +67,25 @@ class AddressBook(UserDict):
                 if (birthday_date - today).days <= 7:
                     upcoming_birthdays.append((record.name.value, birthday_date))
         return upcoming_birthdays
+
+    def get_birthday(self, name):
+        record = self.data.get(name)
+        if record and record.birthday:
+            return record.birthday.value.strftime('%d.%m.%Y')
+        return f'Birthday not found for {name}'
+
+    def get_next_week_birthdays(self):
+        next_week_birthdays = []
+        today = datetime.now()
+        next_week = today + timedelta(days=7)
+        for record in self.data.values():
+            if record.birthday:
+                birthday_date = record.birthday.value.replace(year=today.year)
+                if birthday_date < today:
+                    birthday_date = birthday_date.replace(year=today.year + 1)
+                if today <= birthday_date <= next_week:
+                    next_week_birthdays.append((record.name.value, birthday_date))
+        return next_week_birthdays
 
 class ContactManager:
     def __init__(self):
@@ -148,13 +167,22 @@ class AssistantBot:
 
     def run(self):
         self.greet()
-        print("Available commands:\nhello - greet\nadd [name] [phone] - add a contact\nadd_birthday [name] [birthday] - add birthday to a contact\nchange [name] [old phone] [new phone] - update a contact\nphone [name] - show phone number\nall - show all contacts\nupcoming_birthdays - show upcoming birthdays\nexit - close the bot")
+        print("""Available commands:
+- add [name] [phone]: Add or update a contact with the given name and phone number.
+- change [name] [new phone]: Change phone number for the specified contact.
+- phone [name]: Show phone number for the specified contact.
+- all: Show all contacts.
+- add-birthday [name] [birthday]: Add birthday for the specified contact.
+- show-birthday [name]: Show birthday for the specified contact.
+- birthdays: Show upcoming birthdays for the next week.
+- hello: Get a greeting from the bot.
+- close or exit: Close the bot.""")
 
         while True:
             user_input = input("Enter a command: ")
             command, *args = self.parse_input(user_input)
 
-            if command == "exit":
+            if command == "exit" or command == "close":
                 print("Good bye!")
                 break
             elif command == 'add':
@@ -168,10 +196,10 @@ class AssistantBot:
                 else:
                     print("Invalid command format. Please provide name and birthday (DD.MM.YYYY).")
             elif command == 'change':
-                if len(args) == 3:
+                if len(args) == 2:
                     print(self.contact_manager.change_contact(*args))
                 else:
-                    print("Invalid command format. Please provide name, old phone number, and new phone number.")
+                    print("Invalid command format. Please provide name and new phone number.")
             elif command == 'phone':
                 if len(args) == 1:
                     print(self.contact_manager.show_phone(*args))
@@ -187,6 +215,19 @@ class AssistantBot:
                         print(f'{name}: {birthday.strftime("%d.%m.%Y")}')
                 else:
                     print("No upcoming birthdays.")
+            elif command == 'show_birthday':
+                if len(args) == 1:
+                    print(self.contact_manager.address_book.get_birthday(args[0]))
+                else:
+                    print("Invalid command format. Please provide name.")
+            elif command == 'birthdays':
+                next_week_birthdays = self.contact_manager.address_book.get_next_week_birthdays()
+                if next_week_birthdays:
+                    print("Users to greet next week:")
+                    for name, birthday in next_week_birthdays:
+                        print(f'{name}: {birthday.strftime("%d.%m.%Y")}')
+                else:
+                    print("No users to greet next week.")
             elif command == "hello":
                 print("How can I help you?")
             else:
