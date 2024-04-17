@@ -21,6 +21,7 @@ class Field:
 
 class Birthday(Field):
     def __init__(self, value):
+        super().__init__(value)
         try:
             date_format = '%m.%d.%Y'
             datetime.strptime(value, date_format)
@@ -101,14 +102,15 @@ class AddressBook(UserDict):
             return "Contact not found."
    
     @input_error
-    def add_birthday(self, name, birthday):
+    def birthday(self, name, birthday):
         if name in self.data:
             self.data[name].add_birthday(birthday)
             return "Birthday added successfully."
         else:
             return "Contact not found."
-    
-    def show_birthday(self, name):
+        
+    @input_error
+    def s_birthday(self, name):
         if name in self.data:
             return self.data[name].show_birthday()
         else:
@@ -137,8 +139,8 @@ def main():
     add [name] [phone]: Add a new contact or a phone number to an existing contact.
     change [name] [new_phone]: Change the phone number for the specified contact.
     phone [name]: Show the phone number for the specified contact.
-    add-birthday [name] [birthday]: Add a birthday for the specified contact.
-    show-birthday [name]: Show the birthday for the specified contact.
+    birthday [name] [birthday]: Add a birthday for the specified contact.
+    s-birthday [name]: Show the birthday for the specified contact.
     birthdays: Show birthdays happening within the next week.
     hello: Get a greeting from the bot.
     close or exit: Close the program.""")
@@ -158,13 +160,13 @@ def main():
             _, name = command.split()
             result = address_book.phone(name)
             print(result)
-        elif command.startswith("add-birthday"):
+        elif command.startswith("birthday"):
             _, name, birthday = command.split()
-            result = address_book.add_birthday(name, birthday)
+            result = address_book.birthday(name, birthday)
             print(result)
-        elif command.startswith("show-birthday"):
+        elif command.startswith("s-birthday"):
             _, name = command.split()
-            result = address_book.show_birthday(name)
+            result = address_book.s_birthday(name)
             print(result)
         elif command == "birthdays":
             upcoming_birthdays = address_book.birthdays_this_week()
