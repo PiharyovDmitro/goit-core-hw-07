@@ -86,6 +86,15 @@ class AddressBook(UserDict):
             record.add_phone(phone)
             self.data[name] = record
             return "Contact added successfully."
+           
+    def list_contacts(self):
+        if not self.data:
+            return "Address book is empty."
+        else:
+            contact_list = "Contacts in the address book:\n"
+            for name, record in self.data.items():
+                contact_list += f"{name}: {record.show_phone()}, {record.show_birthday()}\n"
+            return contact_list
 
     @input_error
     def change(self, name, new_phone):
@@ -142,6 +151,7 @@ def main():
     birthday [name] [birthday]: Add a birthday for the specified contact.
     s-birthday [name]: Show the birthday for the specified contact.
     birthdays: Show birthdays happening within the next week.
+    list: Show all contacts.
     hello: Get a greeting from the bot.
     close or exit: Close the program.""")
 
@@ -152,22 +162,30 @@ def main():
             _, name, phone = command.split()
             result = address_book.add(name, phone)
             print(result)
+
         elif command.startswith("change"):
             _, name, new_phone = command.split()
             result = address_book.change(name, new_phone)
             print(result)
+
         elif command.startswith("phone"):
             _, name = command.split()
             result = address_book.phone(name)
             print(result)
+
         elif command.startswith("birthday"):
             _, name, birthday = command.split()
             result = address_book.birthday(name, birthday)
             print(result)
+
         elif command.startswith("s-birthday"):
             _, name = command.split()
             result = address_book.s_birthday(name)
             print(result)
+
+        elif command == "list":
+            print(address_book.list_contacts())
+
         elif command == "birthdays":
             upcoming_birthdays = address_book.birthdays_this_week()
             if upcoming_birthdays:
@@ -176,8 +194,10 @@ def main():
                     print(f"{name}: {birthday}")
             else:
                 print("No upcoming birthdays within next week.")
+
         elif command == "hello":
             print("Hello! How can I assist you today?")
+
         elif command in ["close", "exit"]:
             print("Closing the program.")
             break
