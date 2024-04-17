@@ -119,10 +119,16 @@ class AddressBook(UserDict):
         upcoming_birthdays = []
         today = datetime.today()
         for record in self.data.values():
-            if record.birthday:
-                if (record.birthday.value.month, record.birthday.value.day) in [(today + timedelta(days=i)).month for i in range(7)], [(today + timedelta(days=i)).day for i in range(7)]:
-                    upcoming_birthdays.append((record.name.value, record.birthday.value))
+             if record.birthday:
+                birthday_month = record.birthday.value.month
+                birthday_day = record.birthday.value.day
+                for i in range(7):
+                    next_date = today + timedelta(days=i)
+                    if (birthday_month, birthday_day) == (next_date.month, next_date.day):
+                        upcoming_birthdays.append((record.name.value, record.birthday.value))
+                    break
         return upcoming_birthdays
+
 
 def main():
     address_book = AddressBook()
