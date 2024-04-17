@@ -120,7 +120,7 @@ class AddressBook(UserDict):
         today = datetime.today()
         for record in self.data.values():
             if record.birthday:
-                if (record.birthday.value.month, record.birthday.value.day) in [(today + timedelta(days=i)).month, (today + timedelta(days=i)).day for i in range(7)]:
+                if (record.birthday.value.month, record.birthday.value.day) in [(today + timedelta(days=i)).month for i in range(7)], [(today + timedelta(days=i)).day for i in range(7)]:
                     upcoming_birthdays.append((record.name.value, record.birthday.value))
         return upcoming_birthdays
 
@@ -140,7 +140,7 @@ def main():
 
     while True:
         command = input("Enter command: ").strip()
-        
+
         if command.startswith("add"):
             _, name, phone = command.split()
             result = address_book.add(name, phone)
