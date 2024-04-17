@@ -213,9 +213,7 @@ class AssistantBot:
             command, *args = self.parse_input(user_input)
 
             if command in self.commands:
-                if len(args) == 1:
-                    print(self.commands[command](*args))
-                elif len(args) == 2 and command == 'add' or command == 'add-birthday':
+                if len(args) == 1 or len(args) == 2:
                     print(self.commands[command](*args))
                 else:
                     print("Invalid command format.")
