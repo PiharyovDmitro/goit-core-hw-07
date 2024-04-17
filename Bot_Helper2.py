@@ -2,6 +2,7 @@ import re
 from collections import UserDict
 from datetime import datetime, timedelta
 
+# Декоратор для обробки помилок введення
 def input_error(func):
     def wrapper(*args, **kwargs):
         try:
@@ -12,13 +13,14 @@ def input_error(func):
             return "Enter user name."
         except KeyError:
             return "Contact not found."
-
     return wrapper
 
+# Базовий клас для поля контакту
 class Field:
     def __init__(self, value):
         self.value = value
 
+# Клас для обробки дати народження
 class Birthday(Field):
     def __init__(self, value):
         super().__init__(value)
@@ -28,25 +30,30 @@ class Birthday(Field):
         except ValueError:
             raise ValueError('Invalid date format. Use MM.DD.YYYY')
 
+# Клас для імені контакту
 class Name(Field):
     def __init__(self, value):
         super().__init__(value)
 
+# Клас для телефонного номеру контакту
 class Phone(Field):
     def __init__(self, value):
         super().__init__(value)
         self.validate()
 
+    # Валідація телефонного номеру
     def validate(self):
         if not re.match(r'^\d{10}$', self.value):
             raise ValueError("Invalid phone number format")
 
+# Клас для запису контакту
 class Record:
     def __init__(self, name):
         self.name = Name(name)
         self.phones = []
         self.birthday = None
 
+    # Додавання телефонного номеру
     def add_phone(self, phone):
         existing_phones = [p.value for p in self.phones]
         if phone not in existing_phones:
@@ -54,6 +61,7 @@ class Record:
         else:
             return "Phone number already exists for this contact."
 
+    # Зміна телефонного номеру
     def change_phone(self, new_phone):
         if len(self.phones) == 0:
             return "No phone numbers found for this contact."
@@ -61,22 +69,27 @@ class Record:
             self.phones[0].value = new_phone
             return "Phone number updated successfully."
 
+    # Відображення телефонного номеру
     def show_phone(self):
         if len(self.phones) == 0:
             return "No phone numbers found for this contact."
         else:
             return self.phones[0].value
 
+    # Додавання дати народження
     def add_birthday(self, birthday):
         self.birthday = Birthday(birthday)
 
+    # Відображення дати народження
     def show_birthday(self):
         if self.birthday:
             return self.birthday.value
         else:
             return "Birthday not set for this contact."
 
+# Клас для адресної книги
 class AddressBook(UserDict):
+    # Додавання контакту
     @input_error
     def add(self, name, phone):
         if name in self.data:
@@ -86,7 +99,8 @@ class AddressBook(UserDict):
             record.add_phone(phone)
             self.data[name] = record
             return "Contact added successfully."
-           
+    
+    # Виведення списку контактів
     def list_contacts(self):
         if not self.data:
             return "Address book is empty."
@@ -96,6 +110,7 @@ class AddressBook(UserDict):
                 contact_list += f"{name}: {record.show_phone()}, {record.show_birthday()}\n"
             return contact_list
 
+    # Зміна телефонного номеру
     @input_error
     def change(self, name, new_phone):
         if name in self.data:
@@ -103,6 +118,7 @@ class AddressBook(UserDict):
         else:
             return "Contact not found."
 
+    # Відображення телефонного номеру
     @input_error
     def phone(self, name):
         if name in self.data:
@@ -110,6 +126,7 @@ class AddressBook(UserDict):
         else:
             return "Contact not found."
    
+    # Додавання дати народження
     @input_error
     def birthday(self, name, birthday):
         if name in self.data:
@@ -118,6 +135,7 @@ class AddressBook(UserDict):
         else:
             return "Contact not found."
         
+    # Відображення дати народження
     @input_error
     def s_birthday(self, name):
         if name in self.data:
@@ -125,6 +143,7 @@ class AddressBook(UserDict):
         else:
             return "Contact not found."
 
+    # Пошук контактів з днями народження на наступному тижні
     def birthdays_this_week(self):
         upcoming_birthdays = []
         today = datetime.today()
@@ -139,7 +158,7 @@ class AddressBook(UserDict):
                     break
         return upcoming_birthdays
 
-
+# Головна функція програми
 def main():
     address_book = AddressBook()
 
@@ -206,4 +225,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
