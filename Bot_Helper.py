@@ -214,7 +214,10 @@ class AssistantBot:
 
             if command in self.commands:
                 if len(args) == 1 or len(args) == 2:
-                    print(self.commands[command](*args))
+                    if command == 'change':
+                        print(self.commands[command](*args, args[1]))
+                    else:
+                        print(self.commands[command](*args))
                 else:
                     print("Invalid command format.")
             else:
