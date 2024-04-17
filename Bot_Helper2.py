@@ -100,7 +100,7 @@ class AddressBook(UserDict):
         else:
             return "Contact not found."
 
-    @input_error
+    
     def add_birthday(self, name, birthday):
         if name in self.data:
             self.data[name].add_birthday(birthday)
@@ -108,7 +108,7 @@ class AddressBook(UserDict):
         else:
             return "Contact not found."
 
-    @input_error
+    
     def show_birthday(self, name):
         if name in self.data:
             return self.data[name].show_birthday()
