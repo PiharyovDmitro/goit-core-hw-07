@@ -99,15 +99,14 @@ class AddressBook(UserDict):
             return self.data[name].show_phone()
         else:
             return "Contact not found."
-
-    
+   
+    @input_error
     def add_birthday(self, name, birthday):
         if name in self.data:
             self.data[name].add_birthday(birthday)
             return "Birthday added successfully."
         else:
             return "Contact not found."
-
     
     def show_birthday(self, name):
         if name in self.data:
