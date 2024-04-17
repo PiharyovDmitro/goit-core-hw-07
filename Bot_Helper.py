@@ -199,7 +199,7 @@ class AssistantBot:
         self.greet()
         print("""Available commands:
 - add [name] [phone]: Add or update a contact with the given name and phone number.
-- change [name] [new phone]: Change phone number for the specified contact.
+- change [name] [old phone] [new phone]: Change phone number for the specified contact.
 - phone [name]: Show phone number for the specified contact.
 - all: Show all contacts.
 - add-birthday [name] [birthday]: Add birthday for the specified contact.
@@ -214,10 +214,9 @@ class AssistantBot:
 
             if command in self.commands:
                 if len(args) == 1 or len(args) == 2:
-                    if command == 'change':
-                        print(self.commands[command](*args, args[1]))
-                    else:
-                        print(self.commands[command](*args))
+                    print(self.commands[command](*args))
+                elif len(args) == 3 and command == 'change':
+                    print(self.commands[command](*args))
                 else:
                     print("Invalid command format.")
             else:
@@ -226,3 +225,4 @@ class AssistantBot:
 if __name__ == "__main__":
     bot = AssistantBot()
     bot.run()
+
