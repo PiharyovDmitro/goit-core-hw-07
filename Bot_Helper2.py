@@ -13,7 +13,7 @@ class Name(Field):
 
 class Phone(Field):
     def __init__(self, value):
-        super.__init__(value)
+        super().__init__(value)
         self.__value = None
         self.value = value
 
@@ -31,8 +31,8 @@ class Phone(Field):
 class Birthday(Field):
     def __init__(self, value):
         try:
-            self.date = datetime.strptime(value, format = "%d.%m.%Y").date()
-            super.__init__(value)
+            self.date = datetime.strptime(value, "%d.%m.%Y").date()
+            super().__init__(value)
         except ValueError:
              raise ValueError('Invalid date format. Use MM.DD.YYYY')
         
@@ -191,21 +191,20 @@ def birthdays(args, book):
 def parse_input(user_input):
     parts = user_input.strip().split(maxsplit=1)
     command = parts[0]
-    args = parts[1].split() if len(parts) > 1 else []
-    return command, args
-
+    args = parts[1].split() if len(parts) > 1 else [] 
+    return command, *args
 
 def main():
     book = AddressBook()
     print('''Welcome to the assistant bot!
           - close, exit: Programm is closed
           - hello: Greet
-          - add: Add contact
-          - change: Change contact
-          - phone: Show phone by name
+          - add[Name] [Phone]: Add contact
+          - change[Name] [Old Phone] [New Phone]: Change contact
+          - phone[Name]: Show phone by name
           - all: Show all contacts
-          - add-birthday: Add birthday by Name
-          - show-birthday: Show birthday by Name
+          - add-birthday[Name] [Date]: Add birthday by Name
+          - show-birthday[Name]: Show birthday by Name
           - birthdays: Show upcoming birthdays ''')
     
     while True:
